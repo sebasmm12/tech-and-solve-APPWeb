@@ -1,0 +1,67 @@
+<div fxLayout="column" fxLayoutGap="20px" class="product-form">
+  <mat-card [appearance]="'outlined'">
+    <mat-card-header>
+      <mat-card-title>Formulario de Producto</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Rellena los campos para crear o editar un producto.</p>
+    </mat-card-content>
+  </mat-card>
+  <mat-card [appearance]="'outlined'">
+    <mat-card-content>
+      <form [formGroup]="form" fxLayout="row wrap" fxLayoutGap="10px">
+        <mat-form-field appearance="outline" fxFlex="100%" class="product-input">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="name" />
+          @if(form.get('name')?.hasError('required')){
+          <mat-error> El nombre es obligatorio </mat-error>
+          } @if(form.get('name')?.hasError('maxLength')){
+          <mat-error> El nombre no puede exceder 100 caracteres </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" fxFlex="100%" class="product-input">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="description"></textarea>
+          @if(form.get('description')?.hasError('required')){
+          <mat-error> La descripción es obligatoria </mat-error>
+          } @if(form.get('description')?.hasError('maxLength')){
+          <mat-error> La descripción no puede exceder 500 caracteres </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" fxFlex="calc(50% - 10px)" class="product-input">
+          <mat-label>Precio</mat-label>
+          <input matInput type="number" formControlName="price" />
+          @if(form.get('price')?.hasError('required')){
+          <mat-error> El precio es obligatorio </mat-error>
+          } @if(form.get('price')?.hasError('min')){
+          <mat-error> El precio debe ser al menos 1 </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" fxFlex="calc(50% - 10px)" class="product-input">
+          <mat-label>Stock</mat-label>
+          <input matInput type="number" formControlName="stock" />
+          @if(form.get('stock')?.hasError('required')){
+          <mat-error> El stock es obligatorio </mat-error>
+          } @if(form.get('stock')?.hasError('min')){
+          <mat-error> El stock no puede ser negativo </mat-error>
+          } @if(form.get('stock')?.hasError('pattern')){
+          <mat-error> El stock debe ser un número entero </mat-error>
+          }
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="form.invalid"
+          (click)="submit()"
+          class="form-button"
+        >
+          Guardar Producto
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

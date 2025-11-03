@@ -1,0 +1,26 @@
+<div fxLayout="column" fxLayoutGap="20px" class="products-main">
+  <mat-card [appearance]="'outlined'">
+    <mat-card-header>
+      <mat-card-title>Productos</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div fxLayout="row" fxLayout="start center">
+        <p>Administra los productos de tu tienda aquí.</p>
+        <button
+          mat-raised-button
+          color="primary"
+          routerLink="/products/create"
+          class="register-button"
+        >
+          Agregar Producto
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card [appearance]="'outlined'">
+    <mat-card-content>
+      <app-products-list></app-products-list>
+    </mat-card-content>
+  </mat-card>
+</div>
