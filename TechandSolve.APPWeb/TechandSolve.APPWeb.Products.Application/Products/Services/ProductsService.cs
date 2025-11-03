@@ -2,8 +2,8 @@
 using TechAndSolve.APPWeb.Products.Application.Products.Mappings;
 using TechAndSolve.APPWeb.Products.Application.Products.Requests;
 using TechAndSolve.APPWeb.Products.Application.Products.Responses;
+using TechAndSolve.APPWeb.Products.Domain.Interfaces;
 using TechAndSolve.APPWeb.Products.Domain.Products;
-using TechAndSolve.APPWeb.Products.Infrastructure.Persistence.UnitOfWork;
 
 namespace TechAndSolve.APPWeb.Products.Application.Products.Services;
 

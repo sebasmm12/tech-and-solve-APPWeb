@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TechandSolve.APPWeb.Products.Domain\TechAndSolve.APPWeb.Products.Domain.csproj" />
-    <ProjectReference Include="..\TechandSolve.APPWeb.Products.Infrastructure\TechAndSolve.APPWeb.Products.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

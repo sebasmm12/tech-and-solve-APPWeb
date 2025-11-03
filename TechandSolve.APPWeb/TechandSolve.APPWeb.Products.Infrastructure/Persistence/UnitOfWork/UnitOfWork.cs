@@ -1,4 +1,6 @@
-﻿namespace TechAndSolve.APPWeb.Products.Infrastructure.Persistence.UnitOfWork;
+﻿using TechAndSolve.APPWeb.Products.Domain.Interfaces;
+
+namespace TechAndSolve.APPWeb.Products.Infrastructure.Persistence.UnitOfWork;
 
 public class UnitOfWork
     (ApplicationDbContext applicationDbContext): IUnitOfWork
