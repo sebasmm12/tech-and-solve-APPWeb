@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TechandSolve.APPWeb.Products.Domain\TechAndSolve.APPWeb.Products.Domain.csproj" />
+    <ProjectReference Include="..\TechandSolve.APPWeb.Products.Infrastructure\TechAndSolve.APPWeb.Products.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
