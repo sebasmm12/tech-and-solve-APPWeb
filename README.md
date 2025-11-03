@@ -90,20 +90,34 @@ El back-end está organizado en cuatro capas distintas, siguiendo los principios
 **Responsabilidad**: Entidades de negocio e interfaces principales
 
 - **Entidades**: Modelos de dominio (`Product.cs`)
-- **Interfaces**: Contratos de repositorio (`IProductsRepository.cs`)
+- **Interfaces**: Contratos de repositorio y Unit of Work
+  - `IProductsRepository.cs` - Contrato del repositorio de productos
+  - `IRepository.cs` - Repositorio genérico base
+  - `IUnitOfWork.cs` - Patrón Unit of Work para transacciones
 - **Clases Base**: Abstracciones comunes del dominio
+  - `IEntityBase.cs` - Interfaz base para entidades
+  - `EntityBase.cs` - Clase base con propiedades comunes
 
 **Dependencias**: Ninguna (Lógica de negocio pura)
+
+**Nota Importante**: La interfaz `IUnitOfWork` reside en la capa de Dominio (no en Infraestructura) para mantener la inversión de dependencias y evitar que la capa de Aplicación dependa de Infraestructura.
 
 #### 4. **Capa de Infraestructura** (`TechAndSolve.APPWeb.Products.Infrastructure`)
 **Responsabilidad**: Aspectos externos (base de datos, servicios externos)
 
-- **Persistencia**: DbContext de Entity Framework Core
+- **Persistencia**: DbContext de Entity Framework Core (`ApplicationDbContext.cs`)
 - **Repositorios**: Implementaciones de acceso a datos
+  - `Repository.cs` - Implementación del repositorio genérico
+  - `ProductsRepository.cs` - Implementación específica para productos
+- **Unit of Work**: Implementación del patrón Unit of Work (`UnitOfWork.cs`)
 - **Migraciones**: Versiones del esquema de base de datos
+  - `20251102183109_AddProductTable` - Migración inicial de productos
+  - `20251102235150_AddIsDeletedPropertyInProductTable` - Soft delete
 - **Base de Datos**: SQL Server con EF Core 9.0
 
 **Dependencias**: Domain
+
+**Principio de Inversión de Dependencias**: Esta capa implementa las interfaces definidas en la capa de Dominio (`IRepository`, `IUnitOfWork`), permitiendo que las capas superiores dependan de abstracciones en lugar de implementaciones concretas.
 
 ### Stack Tecnológico (Back-End)
 
@@ -118,11 +132,14 @@ El back-end está organizado en cuatro capas distintas, siguiendo los principios
 
 ### Patrones de Diseño de la API
 
-- **Patrón Repository**: Abstrae la lógica de acceso a datos
-- **Patrón Service**: Encapsula la lógica de negocio
+- **Patrón Repository**: Abstrae la lógica de acceso a datos con repositorios genéricos y específicos
+- **Patrón Unit of Work**: Gestiona transacciones y coordina el guardado de cambios
+- **Patrón Service**: Encapsula la lógica de negocio y orquesta operaciones
 - **Patrón DTO**: Separa los contratos de API de los modelos de dominio
 - **Pipeline de Validación**: FluentValidation para validación de peticiones
 - **Manejo de Excepciones**: Manejo centralizado de errores mediante filtros
+- **Inversión de Dependencias**: Las interfaces residen en la capa de Dominio, las implementaciones en Infraestructura
+- **Soft Delete**: Implementación de borrado lógico mediante propiedad `IsDeleted`
 
 ## 🎨 Arquitectura del Front-End
 
@@ -193,22 +210,48 @@ tech-and-solve-APPWeb/
 │   │   ├── Controllers/
 │   │   │   └── ProductsController.cs
 │   │   ├── Extensions/                            # Extensions DI
+│   │   │   └── ServiceCollectionExtensions.cs
 │   │   ├── Filters/                               # Filtros de Excepción
+│   │   │   └── ExceptionFilter.cs
 │   │   ├── Program.cs
 │   │   └── appsettings.json
 │   ├── TechandSolve.APPWeb.Products.Application/ # Capa de Aplicación
 │   │   └── Products/
-│   │       ├── DTOs/                              # Modelos Request/Response
+│   │       ├── Mappings/                          # Extensiones de mapeo
+│   │       │   └── ProductsMapperExtensions.cs
+│   │       ├── Requests/                          # DTOs Request
+│   │       │   ├── ProductRegisterRequest.cs
+│   │       │   └── ProductUpdateRequest.cs
+│   │       ├── Responses/                         # DTOs Response
+│   │       │   └── ProductResponse.cs
 │   │       ├── Services/                          # Lógica de negocio
+│   │       │   ├── IProductsService.cs
+│   │       │   └── ProductsService.cs
 │   │       └── Validators/                        # FluentValidation
+│   │           ├── ProductRegisterValidator.cs
+│   │           └── ProductUpdateValidator.cs
 │   ├── TechandSolve.APPWeb.Products.Domain/      # Capa de Dominio
 │   │   ├── Products/
 │   │   │   ├── Product.cs                         # Entidad
 │   │   │   └── IProductsRepository.cs             # Interfaz
+│   │   ├── Interfaces/                            # Interfaces core
+│   │   │   ├── IRepository.cs                     # Repositorio genérico
+│   │   │   └── IUnitOfWork.cs                     # Unit of Work
 │   │   └── Bases/                                 # Clases base
+│   │       ├── IEntityBase.cs
+│   │       └── EntityBase.cs
 │   └── TechandSolve.APPWeb.Products.Infrastructure/ # Capa de Infraestructura
-│       ├── Persistence/                           # EF Core DbContext
-│       └── Migrations/                            # Migraciones de BD
+│       ├── Persistence/
+│       │   ├── ApplicationDbContext.cs            # EF Core DbContext
+│       │   ├── Repositories/                      # Implementaciones
+│       │   │   ├── Repository.cs                  # Repositorio genérico
+│       │   │   └── Products/
+│       │   │       └── ProductsRepository.cs
+│       │   ├── Migrations/                        # Migraciones de BD
+│       │   │   ├── 20251102183109_AddProductTable.cs
+│       │   │   └── 20251102235150_AddIsDeletedPropertyInProductTable.cs
+│       │   └── UnitOfWork/
+│       │       └── UnitOfWork.cs                  # Implementación UoW
 ├── TechandSolve.APPWeb.Frontend/                  # Aplicación Front-End
 │   ├── src/
 │   │   ├── app/
@@ -340,13 +383,45 @@ npm run build
 # Salida en el directorio dist/
 ```
 
+## 🔄 Cambios Recientes en la Arquitectura
+
+### Movimiento de IUnitOfWork al Dominio (Nov 2025)
+
+**Cambio**: La interfaz `IUnitOfWork` se movió de la capa de Infraestructura a la capa de Dominio.
+
+**Razón**: 
+- Eliminar dependencia circular entre capas de Aplicación e Infraestructura
+- Adherencia estricta al Principio de Inversión de Dependencias (SOLID)
+- La capa de Aplicación ahora solo depende de Dominio, no de Infraestructura
+
+**Estructura Anterior**:
+```
+Application → Infrastructure (IUnitOfWork)
+Application → Domain
+```
+
+**Estructura Actual**:
+```
+Application → Domain (IUnitOfWork, IRepository)
+Infrastructure → Domain (implementa interfaces)
+```
+
+**Beneficios**:
+- ✅ Sin dependencias circulares
+- ✅ Mejor testabilidad (mocking más fácil)
+- ✅ Cumplimiento de Clean Architecture
+- ✅ Mayor flexibilidad para cambiar implementaciones
+
 ## 🤝 Contribución
 
 1. Sigue los principios de Clean Architecture
 2. Mantén la separación de responsabilidades entre capas
-3. Escribe pruebas unitarias para nuevas características
-4. Usa FluentValidation para validación de entrada
-5. Sigue la guía de estilo de Angular para código front-end
+3. Las interfaces deben residir en la capa de Dominio
+4. Las implementaciones van en la capa de Infraestructura
+5. Escribe pruebas unitarias para nuevas características
+6. Usa FluentValidation para validación de entrada
+7. Sigue la guía de estilo de Angular para código front-end
+8. Implementa soft delete para operaciones de borrado
 
 ## 📄 Licencia
 
